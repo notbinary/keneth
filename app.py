@@ -80,11 +80,26 @@ def detect(filename):
 
     print('Labels:')
     for label in labels:
+        # NB sometimes '1' is recognised as I or l
         match = re.search('\\w{2}\\d{2}\\s{0,1}\\w{3}', label.description)
+        match_i = re.search('\\w{2}I\\d{1}\\s{0,1}\\w{3}', label.description)
+        match_l = re.search('\\w{2}l\\d{1}\\s{0,1}\\w{3}', label.description)
         if match:
             print(f"found: {label.description}")
             vrm = match.group(0)
             print(f"Found vrm: {vrm}")
+            return vrm
+        elif match_i:
+            print(f"found an 'I': {label.description}")
+            vrm = match_i.group(0)
+            vrm = vrm[0:2] + '1' + vrm[3:]
+            print(f"Interpreted vrm: {vrm}")
+            return vrm
+        elif match_l:
+            print(f"found an 'l': {label.description}")
+            vrm = match_l.group(0)
+            vrm = vrm[0:2] + '1' + vrm[3:]
+            print(f"Interpreted vrm: {vrm}")
             return vrm
         else:
             print(f"Not here: {label.description}")
