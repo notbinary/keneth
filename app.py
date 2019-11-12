@@ -54,6 +54,9 @@ def get_data():
     reg = vrm[:-3] + " " + vrm[-3:]
     reg = reg.upper()
 
+    # Display any number plates that don't work out:
+    if 'colour' not in details:
+        return reg
     return render_template('car.html', details=details, reg=reg)
 
     # p = path if path else 'index.html'
