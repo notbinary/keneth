@@ -1,7 +1,14 @@
 from flask import Flask, render_template, current_app, send_from_directory, jsonify, redirect, request, abort
 import requests
 import json
+import tempfile
 import os
+
+# Imports the Google Cloud client library
+from google.cloud import vision
+from google.cloud.vision import types
+import re
+
 
 app = Flask(__name__)
 
@@ -9,17 +16,27 @@ app = Flask(__name__)
 def files():
     return redirect("/static/index.html", code=302)
 
-@app.route('/check', methods = ['POST', 'GET'])
+@app.route('/check', methods = ['POST'])
 def get_data():
 
-    vrm = request.form.get('vrm')
+    vrm = None
+
+    # Try image detection
+    if 'photo' in request.files:
+        f = request.files['photo']
+        with tempfile.NamedTemporaryFile(delete=False) as temp:
+            filename = temp.name
+        f.save(filename)
+        vrm = detect(filename)
+    
+    # Fall back to a provided vrm
     if not vrm:
-        abort(403)
+        vrm = request.form.get('vrm')
 
-    reg = vrm[:-3] + " " + vrm[-3:]
-    reg = reg.upper()
+    # Remove spaces so the APIs understand the vrm:
+    vrm.replace(' ', '')
 
-    dvla = wes_details(vrm)
+    dvla = ves_details(vrm)
     dvlasearch = dvlasearch_details(vrm)
 
     details = {}
@@ -28,10 +45,46 @@ def get_data():
     standardise_fields(details)
     print(json.dumps(details))
 
+    # User-friendly vrm
+    reg = vrm[:-3] + " " + vrm[-3:]
+    reg = reg.upper()
+    
     return render_template('car.html', details=details, reg=reg)
 
     # p = path if path else 'index.html'
     # return send_from_directory('static', p)
+
+def detect(filename):
+
+    # Instantiates a client
+    client = vision.ImageAnnotatorClient()
+
+    # The name of the image file to annotate
+    file_name = os.path.abspath(filename)
+
+    # Loads the image into memory
+    with open(file_name, 'rb') as image_file:
+        content = image_file.read()
+
+    image = types.Image(content=content)
+
+    # Performs label detection on the image file
+    response = client.text_detection(image=image)
+    print(response)
+    labels = response.text_annotations
+
+    print('Labels:')
+    for label in labels:
+        match = re.search('\\w{2}\\d{2}\\s{0,1}\\w{3}', label.description)
+        if match:
+            print(f"found: {label.description}")
+            return match.group(0)
+        else:
+            print(f"Not here: {label.description}")
+
+    # Nothing seems to match
+    return None
+        
 
 def ves_details(vrm):
 
@@ -46,10 +99,6 @@ def ves_details(vrm):
         'x-api-key': api_token
         }
     body = {"registrationNumber":vrm}
-    print(f'url: {api_url}')
-    print(f'key: {api_token}')
-    print(f'headers: {headers}')
-    print(f'body: {body}')
     response = requests.post(api_url, headers=headers, json=body)
     response_body = response.content.decode('utf-8')
     if response.status_code == 200:
@@ -93,3 +142,6 @@ print(f"Key saved to {key_path}")
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0')
+
+
+
