@@ -1,5 +1,7 @@
 FROM python:alpine
 
+RUN apk add --no-cache build-base
+
 WORKDIR /app
 
 COPY requirements.txt .
