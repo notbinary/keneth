@@ -97,22 +97,24 @@ def detect(filename):
 def lenient_match(string):
     match = re.search('\\w{2}[\\d\\w]{2}\\s{0,1}\\w{3}', string)
     if match:
-        result = match.group(0)
-        if result[2:3] in ("I", "l"):
-            result = result[0:2] + "1" + result[3:]
-        if result[2:3] == "O":
-            result = result[0:2] + "0" + result[3:]
-        if result[2:3] == "B":
-            result = result[0:2] + "8" + result[3:]
-        if result[3:4] in ("I", "l"):
-            result = result[0:3] + "1" + result[4:]
-        if result[3:4] == "O":
-            result = result[0:3] + "0" + result[4:]
-        if result[3:4] == "B":
-            result = result[0:3] + "8" + result[4:]
+        characters = list(match.group(0))
+        # Fix numbers
+        number_mappings = {"I": "1", "l": "1", "O": "0", "B": "8"}
+        for pos in range(2, 4):
+            for letter in number_mappings:
+                if characters[pos] == letter:
+                    characters[pos] = number_mappings[letter]
+                else:
+                    print(f'{characters[pos]} != {letter}')
+        # Fix letters
+        letter_mappings = {"0": "O"}
+        for pos in range(5, 8):
+            for number in letter_mappings:
+                if characters[pos] == number:
+                    characters[pos] = letter_mappings[number]
+        result = "".join(characters)
         print(f'Tweaked "{string}" to "{result}"')
         return result
-    
     # Doesn't look like something we can tweak so return the original
     return string
 
@@ -178,8 +180,8 @@ if __name__ == '__main__':
 
 # lenient_match("LB08 CVL")
 # lenient_match("LBO8 CVL")
-# lenient_match("LB0B CVL")
+# lenient_match("LB0l CVL")
 # lenient_match("LBOB CVL")
 # lenient_match("LB18 CVL")
-# lenient_match("LBlB CVL")
-# lenient_match("LBI8 CVL")
+# lenient_match("LBlB CV0")
+# lenient_match("LBI8 0VL")
