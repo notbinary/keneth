@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
 # Run as a container for local test/development
-docker build --tag botathon . && \
-docker run -it --rm -p 5000:5000 \
-    botathon
+export SERVICE_ACCOUNT_KEY=$(cat dvla-keneth-*)
+export VES_API_KEY=$(cat ves-key.txt)
+
+docker build --build-arg SERVICE_ACCOUNT_KEY --build-arg VES_API_KEY --tag botathon . && \
+docker run -it --rm -p 5000:5000 botathon
