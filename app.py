@@ -75,38 +75,46 @@ def detect(filename):
 
     # Performs label detection on the image file
     response = client.text_detection(image=image)
-    print(response)
     labels = response.text_annotations
 
     print('Labels:')
     for label in labels:
         # NB sometimes '1' is recognised as I or l
-        match = re.search('\\w{2}\\d{2}\\s{0,1}\\w{3}', label.description)
-        match_i = re.search('\\w{2}I\\d{1}\\s{0,1}\\w{3}', label.description)
-        match_l = re.search('\\w{2}l\\d{1}\\s{0,1}\\w{3}', label.description)
+        potential_string = lenient_match(label.description)
+        match = re.search('\\w{2}\\d{2}\\s{0,1}\\w{3}', potential_string)
         if match:
             print(f"found: {label.description}")
             vrm = match.group(0)
             print(f"Found vrm: {vrm}")
-            return vrm
-        elif match_i:
-            print(f"found an 'I': {label.description}")
-            vrm = match_i.group(0)
-            vrm = vrm[0:2] + '1' + vrm[3:]
-            print(f"Interpreted vrm: {vrm}")
-            return vrm
-        elif match_l:
-            print(f"found an 'l': {label.description}")
-            vrm = match_l.group(0)
-            vrm = vrm[0:2] + '1' + vrm[3:]
-            print(f"Interpreted vrm: {vrm}")
             return vrm
         else:
             print(f"Not here: {label.description}")
 
     # Nothing seems to match
     return None
-        
+
+
+def lenient_match(string):
+    match = re.search('\\w{2}[\\d\\w]{2}\\s{0,1}\\w{3}', string)
+    if match:
+        result = match.group(0)
+        if result[2:3] in ("I", "l"):
+            result = result[0:2] + "1" + result[3:]
+        if result[2:3] == "O":
+            result = result[0:2] + "0" + result[3:]
+        if result[2:3] == "B":
+            result = result[0:2] + "8" + result[3:]
+        if result[3:4] in ("I", "l"):
+            result = result[0:3] + "1" + result[4:]
+        if result[3:4] == "O":
+            result = result[0:3] + "0" + result[4:]
+        if result[3:4] == "B":
+            result = result[0:3] + "8" + result[4:]
+        print(f'Tweaked "{string}" to "{result}"')
+        return result
+    
+    # Doesn't look like something we can tweak so return the original
+    return string
 
 def ves_details(vrm):
 
@@ -168,4 +176,10 @@ if __name__ == '__main__':
     app.run(host='0.0.0.0')
 
 
-
+# lenient_match("LB08 CVL")
+# lenient_match("LBO8 CVL")
+# lenient_match("LB0B CVL")
+# lenient_match("LBOB CVL")
+# lenient_match("LB18 CVL")
+# lenient_match("LBlB CVL")
+# lenient_match("LBI8 CVL")
