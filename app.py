@@ -104,8 +104,6 @@ def lenient_match(string):
             for letter in number_mappings:
                 if characters[pos] == letter:
                     characters[pos] = number_mappings[letter]
-                else:
-                    print(f'{characters[pos]} != {letter}')
         # Fix letters
         letter_mappings = {"0": "O"}
         for pos in range(5, 8):
