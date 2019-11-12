@@ -1,4 +1,4 @@
-from flask import Flask, current_app, send_from_directory, jsonify, redirect, request
+from flask import Flask, render_template, current_app, send_from_directory, jsonify, redirect, request, abort
 import requests
 import json
 import os
@@ -21,25 +21,30 @@ def files():
 def get_data():
 
     vrn = request.form.get('vrn')
-    if vrn:
-        return jsonify(vrn)
+    if not vrn:
+        abort(403)
 
-    api_token = "testing"
-    api_url = "https://fsa-activity-codes.herokuapp.com/"
-    headers = {'Content-Type': 'application/json',
-           'Authorization': f'Bearer {api_token}'}
+    api_token = "DTeXRL3AQn3hTbxKZdiNk4SP6Nih3GRwagMwv3d6"
+    api_url = "https://uat.driver-vehicle-licensing.api.gov.uk/vehicle-enquiry/v1/vehicles"
+    headers = {
+        'Content-Type': 'application/json',
+        'x-api-key': api_token
+        }
+    body = {"registrationNumber":vrn}
 
-    response = requests.get(api_url, headers=headers)
+    response = requests.post(api_url, headers=headers, json=body)
 
-
+    response_body = response.content.decode('utf-8')
     if response.status_code == 200:
-        return jsonify(json.loads(response.content.decode('utf-8')))
+        return render_template('car.html', vrn=vrn)
+        #return jsonify(json.loads(response_body))
         #return json.loads(response.content.decode('utf-8'))
     else:
-        return "That didn't work"
+        return f"That didn't work ({vrn}): {response.status_code}: {response_body}"
 
     # p = path if path else 'index.html'
     # return send_from_directory('static', p)
+
 
 
 if __name__ == '__main__':
