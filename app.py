@@ -28,13 +28,16 @@ def get_data():
             filename = temp.name
         f.save(filename)
         vrm = detect(filename)
+        print("Got vrm from photo")
     
     # Fall back to a provided vrm
     if not vrm:
         vrm = request.form.get('vrm')
+        print("Falling back to manual vrm")
 
     # Remove spaces so the APIs understand the vrm:
-    vrm.replace(' ', '')
+    vrm = vrm.replace(' ', '')
+    print(f"Checking vrm: {vrm}")
 
     dvla = ves_details(vrm)
     dvlasearch = dvlasearch_details(vrm)
@@ -48,7 +51,7 @@ def get_data():
     # User-friendly vrm
     reg = vrm[:-3] + " " + vrm[-3:]
     reg = reg.upper()
-    
+
     return render_template('car.html', details=details, reg=reg)
 
     # p = path if path else 'index.html'
@@ -78,7 +81,9 @@ def detect(filename):
         match = re.search('\\w{2}\\d{2}\\s{0,1}\\w{3}', label.description)
         if match:
             print(f"found: {label.description}")
-            return match.group(0)
+            vrm = match.group(0)
+            print(f"Found vrm: {vrm}")
+            return vrm
         else:
             print(f"Not here: {label.description}")
 
@@ -92,8 +97,10 @@ def ves_details(vrm):
     api_token = os.getenv('VES_API_KEY', 'DTeXRL3AQn3hTbxKZdiNk4SP6Nih3GRwagMwv3d6')
     if os.getenv('VES_API_KEY'):
         api_url = 'https://driver-vehicle-licensing.api.gov.uk/vehicle-enquiry/v1/vehicles'
+        print("Using live VES")
     else:
         api_url = 'https://uat.driver-vehicle-licensing.api.gov.uk/vehicle-enquiry/v1/vehicles'
+        print("Using UAT VES")
     headers = {
         'Content-Type': 'application/json',
         'x-api-key': api_token
