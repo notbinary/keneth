@@ -23,12 +23,15 @@ def get_data():
 
     # Try image detection
     if 'photo' in request.files:
+        print("Photo uploaded")
         f = request.files['photo']
         with tempfile.NamedTemporaryFile(delete=False) as temp:
             filename = temp.name
         f.save(filename)
         vrm = detect(filename)
         print("Got vrm from photo")
+    else:
+        print("No photo uploaded")
     
     # Fall back to a provided vrm
     if not vrm:
