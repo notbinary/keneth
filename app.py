@@ -36,9 +36,9 @@ def get_data():
 
     response_body = response.content.decode('utf-8')
     if response.status_code == 200:
+        print(json.dumps(json.loads(response_body)))
         return render_template('car.html', vrn=vrn)
         #return jsonify(json.loads(response_body))
-        #return json.loads(response.content.decode('utf-8'))
     else:
         return f"That didn't work ({vrn}): {response.status_code}: {response_body}"
 
