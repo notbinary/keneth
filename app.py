@@ -1,4 +1,4 @@
-from flask import Flask, current_app, send_from_directory, jsonify
+from flask import Flask, current_app, send_from_directory, jsonify, redirect, request
 import requests
 import json
 import os
@@ -11,9 +11,18 @@ app = Flask(__name__)
 #     """ Catch-all route """
 #     pass
 
-@app.route('/', defaults={'path': ''})
-@app.route('/<path:path>')
-def files(path):
+# @app.route('/', defaults={'path': ''})
+# @app.route('/<path:path>')
+@app.route('/')
+def files():
+    return redirect("/static/index.html", code=302)
+
+@app.route('/check', methods = ['POST', 'GET'])
+def get_data():
+
+    vrn = request.form.get('vrn')
+    if vrn:
+        return jsonify(vrn)
 
     api_token = "testing"
     api_url = "https://fsa-activity-codes.herokuapp.com/"
