@@ -20,9 +20,14 @@ def files():
 def voice():
     message = request.json
     print(json.dumps(message))
-    print(message['queryResult']['parameters']['vrm'])
+    vrm = message['queryResult']['parameters']['vrm']
+    print(f"Got vrm: {vrm}")
+    vrm = lenient_match(vrm)
+    print(f'Looking up {vrm}')
+    details = lookup(vrm)
+    print(json.dumps(details))
     return jsonify({
-      "fulfillmentText": "This one's dodgy as hell mate. You want to steer well clear."
+      "fulfillmentText": f"Looks like this is a {details['colour']} {details.['make']} {details.['model']} To be honest, this one's dodgy as hell mate. You want to steer well clear."
       })
 
 @app.route('/check', methods = ['POST'])
@@ -46,20 +51,8 @@ def get_data():
     if not vrm:
         vrm = request.form.get('vrm')
         print("Falling back to manual vrm")
-
-    # Remove spaces so the APIs understand the vrm:
-    if vrm:
-        vrm = vrm.replace(' ', '')
-        vrm = vrm.replace('\n', '')
-
-    dvla = ves_details(vrm)
-    dvlasearch = dvlasearch_details(vrm)
-
-    details = {}
-    details.update(dvlasearch)
-    details.update(dvla)
-    standardise_fields(details)
-    print(json.dumps(details))
+    
+    details = lookup(vrm)
 
     # User-friendly vrm
     if vrm and len(vrm) > 4:
@@ -75,6 +68,24 @@ def get_data():
 
     # p = path if path else 'index.html'
     # return send_from_directory('static', p)
+
+def lookup(vrm):
+
+    # Remove spaces so the APIs understand the vrm:
+    if vrm:
+        vrm = vrm.replace(' ', '')
+        vrm = vrm.replace('\n', '')
+
+    dvla = ves_details(vrm)
+    dvlasearch = dvlasearch_details(vrm)
+
+    details = {}
+    details.update(dvlasearch)
+    details.update(dvla)
+    standardise_fields(details)
+    print(json.dumps(details))
+
+    return details
 
 def detect(filename):
 
