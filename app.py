@@ -27,7 +27,7 @@ def voice():
     details = lookup(vrm)
     print(json.dumps(details))
     return jsonify({
-      "fulfillmentText": f"Looks like this is a {details['colour']} {details['make']} {details['model']} To be honest, this one's dodgy as hell mate. You want to steer well clear."
+      "fulfillmentText": f"Looks like this is a {details['colour']} {details['make']} {details['model']}. Erm, so. To be honest, this one's dodgy as hell mate. You want to steer well clear."
       })
 
 @app.route('/check', methods = ['POST'])
