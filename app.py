@@ -69,7 +69,7 @@ def get_data():
     # p = path if path else 'index.html'
     # return send_from_directory('static', p)
 
-@app.route('/check/<vrm:vrm>', methods = ['GET'])
+@app.route('/check/<vrm>', methods = ['GET'])
 def get_data_get(vrm):
 
     # Try image detection
@@ -102,6 +102,44 @@ def get_data_get(vrm):
     if 'colour' not in details:
         return reg
     return render_template('car.html', details=details, reg=reg)
+
+    # p = path if path else 'index.html'
+    # return send_from_directory('static', p)
+
+@app.route('/json', methods = ['POST'])
+def get_json():
+
+    vrm = None
+
+    # Try image detection
+    if 'photo' in request.files:
+        print("Photo uploaded")
+        f = request.files['photo']
+        with tempfile.NamedTemporaryFile(delete=False) as temp:
+            filename = temp.name
+        f.save(filename)
+        vrm = detect(filename)
+        print("Got vrm from photo")
+    else:
+        print("No photo uploaded")
+    
+    # Fall back to a provided vrm
+    if not vrm:
+        vrm = request.form.get('vrm')
+        print("Falling back to manual vrm")
+    
+    details = lookup(vrm)
+
+    # User-friendly vrm
+    if vrm and len(vrm) > 4:
+        reg = vrm[:-3] + " " + vrm[-3:]
+    else:
+        reg = "unknown"
+    reg = reg.upper()
+
+    # Display any number plates that don't work out:
+    details['reg'] = reg
+    return jsonify(details)
 
     # p = path if path else 'index.html'
     # return send_from_directory('static', p)
