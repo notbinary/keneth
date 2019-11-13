@@ -18,7 +18,9 @@ def files():
 
 @app.route('/voice', methods = ['POST'])
 def voice():
-    print(json.dumps(request.json))
+    message = request.json
+    print(json.dumps(message))
+    print(message['queryResult']['parameters']['vrm'])
     return jsonify({
       "fulfillmentText": "This one's dodgy as hell mate. You want to steer well clear."
       })
