@@ -52,7 +52,10 @@ def get_data():
     print(json.dumps(details))
 
     # User-friendly vrm
-    reg = vrm[:-3] + " " + vrm[-3:]
+    if vrm and len(vrm) > 4
+        reg = vrm[:-3] + " " + vrm[-3:]
+    else:
+        reg = "unknown"
     reg = reg.upper()
 
     # Display any number plates that don't work out:
