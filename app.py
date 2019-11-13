@@ -52,7 +52,7 @@ def get_data():
     print(json.dumps(details))
 
     # User-friendly vrm
-    if vrm and len(vrm) > 4
+    if vrm and len(vrm) > 4:
         reg = vrm[:-3] + " " + vrm[-3:]
     else:
         reg = "unknown"
