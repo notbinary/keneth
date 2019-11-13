@@ -16,6 +16,13 @@ app = Flask(__name__)
 def files():
     return redirect("/static/index.html", code=302)
 
+@app.route('/voice', methods = ['POST'])
+def voice():
+    print(json.dumps(request.json))
+    return jsonify({
+      "fulfillmentText": "This one's dodgy as hell mate. You want to steer well clear."
+      })
+
 @app.route('/check', methods = ['POST'])
 def get_data():
 
