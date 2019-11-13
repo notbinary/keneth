@@ -106,13 +106,13 @@ def lenient_match(string):
         number_mappings = {"I": "1", "l": "1", "O": "0", "B": "8"}
         for pos in range(2, 4):
             for letter in number_mappings:
-                if characters[pos] == letter:
+                if pos < len(characters) and characters[pos] == letter:
                     characters[pos] = number_mappings[letter]
         # Fix letters
         letter_mappings = {"0": "O"}
         for pos in range(5, 8):
             for number in letter_mappings:
-                if characters[pos] == number:
+                if pos < len(characters) and characters[pos] == number:
                     characters[pos] = letter_mappings[number]
         result = "".join(characters)
         print(f'Tweaked "{string}" to "{result}"')
