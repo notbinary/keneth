@@ -39,7 +39,8 @@ def get_data():
         print("Falling back to manual vrm")
 
     # Remove spaces so the APIs understand the vrm:
-    vrm = vrm.replace(' ', '')
+    if vrm:
+        vrm = vrm.replace(' ', '')
 
     dvla = ves_details(vrm)
     dvlasearch = dvlasearch_details(vrm)
