@@ -15,11 +15,11 @@
   "author": "Facebook",
   "license": "ISC",
   "dependencies": {
-    "body-parser": "^1.15.0",
-    "config": "^1.20.4",
-    "ejs": "^2.4.2",
-    "express": "^4.13.4",
-    "request": "^2.72.0",
+    "body-parser": "^1.19.0",
+    "config": "^3.3.0",
+    "ejs": "^3.0.1",
+    "express": "^4.17.1",
+    "request": "^2.88.2",
     "form-data": "^3.0.0"
   },
   "engines": {
